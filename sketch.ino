@@ -1,37 +1,46 @@
-const int ledPins[] = {17, 16, 4, 2, 15};
-const int estagio[] = {18, 0, 5, 19};
-const int numLeds = sizeof(ledPins) / sizeof(ledPins[0]);
-const int numEstagio = sizeof(estagio) / sizeof(estagio[0]); 
-const int esperaEstagio = 300;
-const int esperaCircuito = 400;
+#define button 13
+#define leds 4
+#define stop 15
+
+int estagio[leds] = {23, 22, 21, 19};
+int drag[leds] = {18, 16, 0, 2};
 
 void setup() {
-  for(int i = 0; i < numEstagio; i++){
+  for(int i = 0; i < leds; i++) {
     pinMode(estagio[i], OUTPUT);
-    delay(esperaEstagio);
-    digitalWrite(estagio[i], HIGH);
-    delay(esperaEstagio);
+    pinMode(drag[i], OUTPUT);
   }
-
-  pinMode(ledPins[0], OUTPUT);
-  digitalWrite(ledPins[0], HIGH);
-  delay(esperaCircuito);
-   for(int i = 0; i < numLeds; i++){
-    pinMode(ledPins[i], OUTPUT);
-  }
-  for(int i = 0; i < numLeds - 2; i++){
-    digitalWrite(ledPins[i], HIGH);
-    delay(esperaCircuito);
-    digitalWrite(ledPins[i], LOW);
-    //delay(esperaCircuito);
-  }
-  delay(esperaCircuito);
-  digitalWrite(ledPins[3], HIGH);
-  for (int i = 0; i < numEstagio; i++){
-    digitalWrite(estagio[i], LOW);
-  }
+  pinMode(button, INPUT_PULLUP);
+  pinMode(stop, OUTPUT);
 }
 
 void loop() {
-
+  while (digitalRead(button) == HIGH){
+    digitalWrite(stop, LOW);
+    for (int i = 0; i < leds; i++) {
+      digitalWrite(estagio[i], HIGH);
+      delay(400);
+    }
+    for (int i = 0; i < leds; i++) {
+      digitalWrite(drag[i], HIGH);
+      delay(500);
+      digitalWrite(drag[i], LOW);
+      if (i == 3) {
+        while (digitalRead(button) == HIGH) {
+          digitalWrite(drag[i], HIGH);
+          for(int i = 0; i < leds; i++) {
+            digitalWrite(estagio[i], LOW);
+          }
+        }
+      }
+    }
+  }
+  while (digitalRead(button) == LOW) {
+    for(int i = 0; i < leds; i++) {
+      digitalWrite(estagio[i], LOW);
+      digitalWrite(drag[i], LOW);
+    }
+    digitalWrite(stop, HIGH);
+  }
+  
 }
